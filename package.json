@@ -1,0 +1,50 @@
+{
+  "name": "reslice",
+  "version": "0.1.0",
+  "description": "React/Redux State Management",
+  "main": "lib/reslice.js",
+  "scripts": {
+    "//": "",
+    "build": "cross-env BABEL_ENV=es babel src --out-dir lib",
+    "test": "cross-env mocha ./test/reslice.test.js --require babel-core/register --watch",
+    "cover": "cross-env nyc --reporter=lcov --reporter=text mocha ./test/reslice.test.js --require babel-core/register"
+  },
+  "author": "Mike Richardson",
+  "license": "MIT",
+  "devDependencies": {
+    "babel-core": "^6.26.0",
+    "babel-plugin-transform-object-rest-spread": "^6.26.0",
+    "babel-plugin-transform-react-jsx": "^6.24.1",
+    "babel-preset-es2015": "^6.24.1",
+    "cross-env": "^5.1.0",
+    "enzyme": "^3.1.1",
+    "enzyme-adapter-react-16": "^1.0.4",
+    "expect": "^21.2.1",
+    "jsdom": "^11.3.0",
+    "jsdom-global": "^3.0.2",
+    "lodash": "^4.17.4",
+    "mocha": "^4.0.1",
+    "nyc": "^11.2.1",
+    "prop-types": "^15.6.0",
+    "react": "^16.0.0",
+    "react-dom": "^16.0.0",
+    "react-redux": "^5.0.6",
+    "redux": "^3.7.2",
+    "redux-thunk": "^2.2.0",
+    "reselect": "^3.0.1"
+  },
+  "dependencies": {},
+  "jest": {
+    "roots": [
+      "<rootDir>/test"
+    ],
+    "transform": {
+      "^.+\\.js$": "babel-jest"
+    },
+    "testMatch": [
+      "**/*.test.js"
+    ],
+    "moduleNameMapper": {},
+    "coverageDirectory": "<rootDir>/coverage-jest"
+  }
+}
