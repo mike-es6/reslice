@@ -6,6 +6,7 @@ import { connect as __connect } from 'react-redux' ;
 import { createSelector as __createSelector } from 'reselect' ;
 
 let $$tag = 1 ;
+let seseq = 1 ;
 
 /**
  * Custom shallow equal, distinguishes between Array and Object.
@@ -293,11 +294,15 @@ export function buildReducer (reducer, store, useTag) {
                  * If the selector has a $$factory property then call
                  * that to create the selector. This allows selector
                  * memoization on a per-slice basis, rather than
-                 * globally.
+                 * globally. Also, since we have a .getRoot() 
+                 * methods on slices, which may return different results
+                 * even if the particular slice changes, we need to
+                 * default the outer level of memoization in reslice.
                 **/
                 if (selector.$$factory)
                     selector = selector.$$factory() ;
                 prototype[name] = function (...args) {
+                    args.push(seseq++) ;
                     return selector(this, ...args) ;
                     } ;
                 }

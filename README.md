@@ -496,8 +496,19 @@ As noted earlier, action creations must be *function* functions and not
 API - Creating Selector Functions
 ---------------------------------
 
-Reslice will work with the standard Reselect *createSelector* function.
-However, if you use a Reslice component multiple times (such as the
+You should use the Reslice version of the *createSelector* function
+(which wraps the Reselect version), for two reasons.
+
+Firstly, Reselect has two levels of memoization. Firstly, if the
+arguments passed to the function are unchanged, then the last result
+is returned as-is; secondly, if the composed selectors return the
+same values then again the last result is returned as-is. However,
+since Reslice allows access to the root of the store via .getRoot(),
+then the value which should be returned by a selector may change
+even if the slice itself does not. For this reason, the Reslice
+needs to defeat the first level of memoization.
+
+Secondly, if you use a Reslice component multiple times (such as the
 Todo's in the ToDo List), and those components use selectors, then
 naive usage of Reselect will break the memoization. This issue is
 covered in the Reselect documentation at
