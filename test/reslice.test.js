@@ -829,4 +829,40 @@ describe('reslice tests', () => {
         expect(wrapper.find('#ab2-aa').text()).toBe('1' ) ;
         expect(wrapper.find('#ab2-bb').text()).toBe('20') ;
         }) ;
+
+    it ('should correctly handle updated state from an extender', () => {
+        let gotSlice = null ;
+        const reducerInner = (state = { tag: 'inner0' }, action) => {
+            return action.type === 'inner' ? { tag: 'inner1' } : state ;
+            } ;
+        const reducerBound = reslice.bindReducer(reducerInner, {
+            actions: {
+                getter: function () {
+                            return function (dispatch, getSlice) {
+                                gotSlice = getSlice() ;
+                            }
+                    }
+                }
+            }) ;
+        const extendFunc = (state = { tag: 'extend0' }, action) => {
+            return action.type === 'extend' ? { tag: 'extend1' } : null ;
+            } ;
+        const reducer = reslice.extendReducer(reducerBound, extendFunc) ;
+        let store = reslice.createStore (reducer, {}, null, applyMiddleware(thunk)) ;
+
+        store.dispatch(store.getState().getter()) ;
+        expect(gotSlice).toEqual({ tag: 'inner0' }) ;
+
+        store.dispatch({ $$tag: null, type: 'none' }) ;
+        store.dispatch(store.getState().getter()) ;
+        expect(gotSlice).toEqual({ tag: 'inner0' }) ;
+
+        store.dispatch({ $$tag: null, type: 'inner' }) ;
+        store.dispatch(store.getState().getter()) ;
+        expect(gotSlice).toEqual({ tag: 'inner1' }) ;
+
+        store.dispatch({ $$tag: null, type: 'extend' }) ;
+        store.dispatch(store.getState().getter()) ;
+        expect(gotSlice).toEqual({ tag: 'extend1' }) ;
+        }) ;
     }) ;

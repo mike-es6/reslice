@@ -170,12 +170,15 @@ export function buildReducer (reducer, store, useTag) {
                  * If the action has the global tag or the matching
                  * tag, then run the action through the extending
                  * function. If this yields a result then make sure
-                 * the prototype is set and return that result.
+                 * the prototype is set and return that result; also
+                 * propogate the new state into the reducer so that
+                 * getSlice() behaves correctly.
                 **/
                 if (!action.$$tag || (action.$$tag === state.$$tag)) {
                     let newState = _extension(state, action, ...args) ;
                     if (newState) {
                         Object.setPrototypeOf(newState, Object.getPrototypeOf(state)) ;
+                        _reducer.setLastState(newState) ;
                         return newState ;
                         }
                     }
@@ -329,7 +332,13 @@ export function buildReducer (reducer, store, useTag) {
                 throw new Error("reslice.action: action already has a tag: " + action.$$tag) ;
             return Object.assign({}, action, { $$tag: prototype.$$tag }) ;
             } ;
-        return function (state, action) {
+        /**
+         * This is the actual reducer function that will be returned. Before
+         * doing so, add a property which is a function that can be called
+         * from outside to change the lastState; this is needed by the code
+         * in extendReducer.
+        **/
+        const $$reducer = function (state, action) {
             if (action.$$tag === undefined)
                 if (!action.type.startsWith('@@'))
                     throw new Error("reslice.reduce: $$tag is undefined: " + JSON.stringify(action)) ;
@@ -346,6 +355,10 @@ export function buildReducer (reducer, store, useTag) {
                 }
             return newState ;
             }
+        $$reducer.setLastState = function (state) {
+            lastState = state ;
+            }
+        return $$reducer ;
         }
     wrapReducer.$$tag = reducer.$$tag ;
     return wrapReducer () ;
