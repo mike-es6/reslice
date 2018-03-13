@@ -1,4 +1,5 @@
 import expect from 'expect' ;
+import { isEqual } from 'lodash' ;
 import { ownPropertiesOnly } from './tests' ;
 
 expect.extend({
@@ -8,7 +9,7 @@ expect.extend({
     **/
     toEqualObject(received, argument) {
         let actual = ownPropertiesOnly(received) ;
-        if (this.equals(actual, argument))
+        if (isEqual(actual, argument))
             return {
                 pass: true,
                 message: () => `expected ${ JSON.stringify(actual) } to not equal ${ JSON.stringify(argument) }`,
@@ -23,9 +24,9 @@ expect.extend({
      * values.
     **/
     toEqualAction(received, argument) {
-        let actual   = Object.assign({}, received.actual, { $$tag: this.actual.$$tag || 0 }) ;
-        let expected = Object.assign({}, argument, { $$tag: _expected.$$tag || 0 }) ;
-        if (this.equals(actual, argument))
+        let actual   = Object.assign({}, received, { $$tag: received.$$tag || 0 }) ;
+        let expected = Object.assign({}, argument, { $$tag: argument.$$tag || 0 }) ;
+        if (isEqual(actual, expected))
             return {
                 pass: true,
                 message: () => `expected ${ JSON.stringify(actual) } to not equal ${ JSON.stringify(argument) }`,
