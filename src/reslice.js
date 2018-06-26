@@ -140,9 +140,25 @@ export function buildReducer (reducer, store, useTag) {
     **/
     if (reducer.$$combine) {
         let myTag = $$tag++ ;
+        /**
+         * If a combined reducer is a simple function then wrap the reducer
+         * with a filter function that checks on the action tag. If it
+         * is not, then it is not wrapped, so that actions continue to
+         * propogate down the state tree.
+        **/
+        function filterReducer(reducer) {
+            const _reducer = buildReducer(reducer, store, myTag) ;
+            if (isFunction(reducer))
+                return function (state, action, ...args) {
+                    if (!action.$$tag || (action.$$tag === state.$$tag))
+                        return _reducer(state, action, ...args) ;
+                    return state ;
+                    } ;
+            return _reducer ;
+            }
         reducer = {
             $$reducer: __combineReducers(mapValues(
-                            reducer.$$reducers, (r) => buildReducer(r, store, myTag)
+                            reducer.$$reducers, (r) => filterReducer(r)
                             )),
             $$selectors: reducer.$$selectors,
             $$actions: reducer.$$actions,
