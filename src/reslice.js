@@ -1,6 +1,6 @@
 import React, { Component } from 'react' ;
 import PropTypes from 'prop-types' ;
-import { each, groupBy, includes, isFunction, isPlainObject, keys, mapValues, pickBy, union } from 'lodash' ;
+import { each, groupBy, includes, isArray, isFunction, isObject, isPlainObject, keys, mapValues, pickBy, union } from 'lodash' ;
 import { combineReducers as __combineReducers,  createStore as __createStore } from 'redux' ;
 import { connect as __connect } from 'react-redux' ;
 import { createSelector as __createSelector } from 'reselect' ;
@@ -37,6 +37,15 @@ export function shallowEqual (thing, other) {
         return true ;
         }
     return false ;
+    }
+
+/**
+ * Conditionally set prototype. Needed to allow reducers that return state
+ * that is not object-like, whence Object.setPrototypeOf borks on IE11/Edge.
+**/
+function setPrototypeOf(state, prototype) {
+    if (isArray(state) || isObject(state))
+        Object.setPrototypeOf(state, prototype) ;
     }
 
 /**
@@ -193,7 +202,7 @@ export function buildReducer (reducer, store, useTag) {
                 if (!action.$$tag || (action.$$tag === state.$$tag)) {
                     let newState = _extension(state, action, ...args) ;
                     if (newState) {
-                        Object.setPrototypeOf(newState, Object.getPrototypeOf(state)) ;
+                        setPrototypeOf(newState, Object.getPrototypeOf(state)) ;
                         _reducer.setLastState(newState) ;
                         return newState ;
                         }
@@ -366,7 +375,7 @@ export function buildReducer (reducer, store, useTag) {
             **/
             if (newState.$$tag === undefined) {
                 let newproto = Object.assign(Object.create(Object.getPrototypeOf(newState)), prototype) ;
-                Object.setPrototypeOf(newState, newproto) ;
+                setPrototypeOf(newState, newproto) ;
                 lastState = newState ;
                 }
             return newState ;
