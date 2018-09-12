@@ -59,12 +59,10 @@ export function checkDistinctNames (selectors, actions) {
     if (allkeys.length != skeys.length + akeys.length)
         throw new Error("reslice.checkDistinctNames: one or more names are repeated: " +
             keys(pickBy(groupBy(skeys.concat(akeys)), (x) => x.length > 1))) ;
-    if (includes(allkeys, 'action'))
-        throw new Error("reslice.checkDistinctNames: cannot use action as a selector or action name") ;
-    if (includes(allkeys, 'globalAction'))
-        throw new Error("reslice.checkDistinctNames: cannot use globalAction as a selector or action name") ;
-    if (includes(allkeys, 'getRoot'))
-        throw new Error("reslice.checkDistinctNames: cannot use getRoot as a selector or action name") ;
+    each(['action', 'globalAction', 'getRoot', 'reducer'], (name) => {
+        if (includes(allkeys, name))
+            throw new Error(`reslice.checkDistinctNames: cannot use ${ name } as a selector or action name`) ;
+        }) ;
     }
 
 /**
@@ -379,6 +377,9 @@ export function buildReducer (reducer, store, useTag) {
                 lastState = newState ;
                 }
             return newState ;
+            }
+        prototype.reducer = function(action) {
+            return $$reducer(this, action) ;
             }
         $$reducer.setLastState = function (state) {
             lastState = state ;

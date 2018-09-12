@@ -237,6 +237,24 @@ describe('reslice tests', () => {
         expect(state2.b).toBe(202) ;
         }) ;
 
+    it ('builds a bindReducer object with reducer accessible', () => {
+        let store = {
+            } ;
+        let binding = reslice.bindReducer(reducerAB, { selectors: selectorsAB, actions: actionsAB }) ;
+        let bound = reslice.buildReducer(binding, store) ;
+        let state0 = bound(undefined, { type: '@@INIT' }) ;
+        expect(state0.a).toBe(1) ;
+        expect(state0.b).toBe(2) ;
+        expect(state0.getA()).toBe(11) ;
+        expect(state0.getB()).toBe(12) ;
+        let state1 = state0.reducer(state0.setA(101)) ;
+        expect(state1.a).toBe(101) ;
+        expect(state1.b).toBe(2) ;
+        let state2 = state1.reducer(state1.setB(202)) ;
+        expect(state2.a).toBe(101) ;
+        expect(state2.b).toBe(202) ;
+        }) ;
+
     it ('builds a combineReducers object with selectors and actions', () => {
         let store = {
             } ;
@@ -653,6 +671,21 @@ describe('reslice tests', () => {
                 getRoot: () => null,
                 }
             })).toThrow(/getRoot.*selector or action name/) ;
+        }) ;
+
+    it ('throws an exception if an action or selector name is reducer', () => {
+        expect(() => reslice.bindReducer(reducerAB, {
+            selectors: {
+                name1 : () => null,
+                reducer: () => null,
+                }
+            })).toThrow(/reducer.*selector or action name/) ;
+        expect(() => reslice.bindReducer(reducerAB, {
+            actions: {
+                name1 : () => null,
+                reducer: () => null,
+                }
+            })).toThrow(/reducer.*selector or action name/) ;
         }) ;
 
     it ('should create a global action', () => {
